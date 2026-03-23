@@ -67,6 +67,7 @@ export function MainForm() {
           //value={taskName}
           //onChange={e => setTaskName(e.target.value)}
           ref={taskNameInput}
+          disabled={!!state.activeTask}
         />
       </div>
 
@@ -74,9 +75,11 @@ export function MainForm() {
         <p>O próximo intervalo será de 25min.</p>
       </div>
 
-      <div className='formRow'>
-        <Cycles />
-      </div>
+      {state.currentCycle > 0 && (
+        <div className='formRow'>
+          <Cycles />
+        </div>
+      )}
 
       <div className='formRow'>
         <DefaultButton icon={<PlayCircleIcon />} />
