@@ -8,9 +8,11 @@ import { useTaskContext } from '../../contexts/TaskContext/useTaskContext';
 import { getNetxtCycle } from '../../utils/getNextCycle';
 import { getNetxtCycleType } from '../../utils/getNextCycleType';
 import { formatSecondsToMinutes } from '../../utils/formatSecondsToMinutes';
+import { TaskActionTypes } from '../../contexts/TaskContext/taskActions';
+import { Tips } from '../Tips';
 
 export function MainForm() {
-  const { state, setState } = useTaskContext();
+  const { state, dispatch } = useTaskContext();
   // const [taskName, setTaskName] = useState(''); // Controlada: Renderiza enquanto digita
   const taskNameInput = useRef<HTMLInputElement>(null); // Não controlada: Acessa o valor apenas no submit
 
@@ -23,7 +25,6 @@ export function MainForm() {
 
     if (taskNameInput.current === null) return;
     const taskName = taskNameInput.current.value.trim(); // Acessa o valor do input e remove espaços em branco
-    console.log(taskName);
 
     if (!taskName) {
       alert('Digite algo para criar uma tarefa!');
@@ -41,38 +42,12 @@ export function MainForm() {
       type: nextCycleType,
     };
 
-    const secondsRemaining = newTask.duration * 60;
-
-    setState(prevState => {
-      return {
-        ...prevState,
-        config: { ...prevState.config },
-        activeTask: newTask,
-        currentCycle: nextCycle,
-        secondsRemaining, // Conferir
-        formattedSecondsRemaining: formatSecondsToMinutes(secondsRemaining),
-        tasks: [...prevState.tasks, newTask],
-      };
-    });
+    dispatch({ type: TaskActionTypes.START_TASK, payload: newTask });
   }
 
   function handleInterruptTask() {
     if (!state.activeTask) return;
-
-    setState(prevState => {
-      return {
-        ...prevState,
-        activeTask: null,
-        secondsRemaining: 0,
-        formattedSecondsRemaining: '00:00',
-        tasks: prevState.tasks.map(task => {
-          if (task.id === prevState.activeTask?.id) {
-            return { ...task, interruptDate: Date.now() };
-          }
-          return task;
-        }),
-      };
-    });
+    dispatch({ type: TaskActionTypes.INTERRUPT_TASK });
   }
 
   return (
@@ -91,7 +66,9 @@ export function MainForm() {
       </div>
 
       <div className='formRow'>
-        <p>O próximo intervalo será de 25min.</p>
+        <p>
+          <Tips />
+        </p>
       </div>
 
       {state.currentCycle > 0 && (
